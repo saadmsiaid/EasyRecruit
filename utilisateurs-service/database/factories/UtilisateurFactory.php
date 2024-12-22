@@ -12,10 +12,10 @@ class UtilisateurFactory extends Factory
     public function definition()
     {
         return [
-            'nom' => $this->faker->name,
+            'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'role' => $this->faker->randomElement(['admin', 'recruteur']),
-            'mot_de_passe' => bcrypt('password'),  // You should hash the password
+            'password' => bcrypt('password'),  
         ];
     }
 }

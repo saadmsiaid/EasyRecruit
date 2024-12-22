@@ -1,10 +1,10 @@
 <?php
-
 namespace Database\Factories;
 
 use App\Models\Candidature;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CandidatureFactory extends Factory
 {
@@ -12,16 +12,20 @@ class CandidatureFactory extends Factory
 
     public function definition()
     {
-        // Get a list of Offre IDs from the offres service (or any other source you prefer)
-        $offreIds = DB::connection('mysql') // Specify your DB connection here if needed
-                      ->table('offres')  // Assuming the table is named "offres"
-                      ->pluck('id')->toArray(); // Get all IDs
-
+        // Fetch available `offre_id` values from the Offres Service API
+        $response = Http::get('http://localhost:8000/offres');
+        
+        if ($response->successful()) {
+            $offreIds = collect($response->json())->pluck('id')->toArray();
+        } else {
+            dd('Failed to fetch Offre IDs. HTTP Status: ' . $response->status());
+        }
+        
         return [
             'candidat_nom' => $this->faker->name,
             'candidat_email' => $this->faker->unique()->safeEmail,
-            'cv' => $this->faker->url,  // You could replace this with a file path if you need
-            'offre_id' => $this->faker->randomElement($offreIds),  // Randomly assign an offer ID
+            'cv' => $this->faker->url,
+            'offre_id' => $this->faker->randomElement($offreIds),
         ];
     }
 }
